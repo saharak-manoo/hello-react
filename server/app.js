@@ -14,9 +14,16 @@ const app = express();
 // Server static assets
 app.use(express.static(path.resolve(__dirname, '..', 'build')));
 
+app.get('/api/students', (req, res, done) => {
+	client.query('SELECT * FROM students', function(err, result) {
+		if (err) {
+			res.status(400).send(err);
+		}
+		res.status(200).send(result.rows);
+	});
+});
+
 app.get('*', (req, res) => {
-	console.log(res);
-	console.log(req);
 	res.sendFile(path.resolve(__dirname, '..', 'build', 'index.html'));
 });
 
