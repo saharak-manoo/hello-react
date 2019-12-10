@@ -51,7 +51,7 @@ export default class MatTable extends Component<Props> {
 									{this.state.rows
 										.slice(
 											this.state.page * this.state.rowsPerPage,
-											this.state.page * this.state.rowsPerPage + this.state.rowsPerPage
+											(this.state.page + 1) * this.state.rowsPerPage
 										)
 										.map(row => (
 											<TableRow key={row.first_name}>
