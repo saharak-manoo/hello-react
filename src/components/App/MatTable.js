@@ -7,6 +7,9 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TablePagination from '@material-ui/core/TablePagination';
 import Paper from '@material-ui/core/Paper';
+import { Link } from 'react-router';
+import Button from '@material-ui/core/Button';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 import * as Api from '../../util/Api';
 
@@ -42,6 +45,13 @@ export default class MatTable extends Component<Props> {
 		this.props.onEditStudentFormDialog(student);
 	};
 
+	confirmDelete = async student => {
+		let resp = await Api.deleteStudents(student.id);
+		if (resp.success) {
+			this.props.onDeleteStudent();
+		}
+	};
+
 	render() {
 		return (
 			<div className='container'>
@@ -57,6 +67,7 @@ export default class MatTable extends Component<Props> {
 										<TableCell>First name</TableCell>
 										<TableCell align='right'>Last name</TableCell>
 										<TableCell align='right'>Status</TableCell>
+										<TableCell align='right'></TableCell>
 									</TableRow>
 								</TableHead>
 								<TableBody>
@@ -68,10 +79,21 @@ export default class MatTable extends Component<Props> {
 										.map(row => (
 											<TableRow key={row.first_name}>
 												<TableCell component='th' scope='row'>
-													<a onClick={() => this.openEditer(row)}>{row.first_name}</a>
+													<a className='link-to' onClick={() => this.openEditer(row)}>
+														{row.first_name}
+													</a>
 												</TableCell>
 												<TableCell align='right'>{row.last_name}</TableCell>
 												<TableCell align='right'>{row.status}</TableCell>
+												<TableCell align='right'>
+													<Button
+														variant='contained'
+														color='secondary'
+														onClick={() => this.confirmDelete(row)}
+														startIcon={<DeleteIcon />}>
+														Delete
+													</Button>
+												</TableCell>
 											</TableRow>
 										))}
 								</TableBody>

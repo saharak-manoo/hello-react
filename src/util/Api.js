@@ -56,3 +56,22 @@ export async function updateStudents(id, params) {
 		console.warn(e);
 	}
 }
+
+export async function deleteStudents(id) {
+	try {
+		const resp = await fetch(`/api/students/${id}`, {
+			method: 'DELETE',
+			headers: {
+				Accept: 'application/json',
+				'Content-Type': 'application/json'
+			}
+		});
+
+		let response = await resp.json();
+		if (response) {
+			return response;
+		}
+	} catch (e) {
+		console.warn(e);
+	}
+}

@@ -35,3 +35,7 @@ button:focus {
 	width: 100%;
 	overflow-x: auto;
 }
+
+.link-to {
+	color: rgba(31, 133, 250, 0.822);
+}

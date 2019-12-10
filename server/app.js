@@ -67,6 +67,20 @@ app.put('/api/students/:id', (req, res) => {
 	});
 });
 
+app.delete('/api/students/:id', (req, res) => {
+	let query = {
+		text: `DELETE FROM students WHERE id = (${req.params.id})`
+	};
+
+	client.query(query, (err, result) => {
+		if (err) {
+			res.status(400).send({ student: null, success: false, errors: err });
+		} else {
+			res.status(200).send({ students: result.rows[0], success: true, errors: null });
+		}
+	});
+});
+
 app.get('*', (req, res) => {
 	res.sendFile(path.resolve(__dirname, '..', 'build', 'index.html'));
 });
