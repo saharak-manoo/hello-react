@@ -17,33 +17,42 @@ import * as Api from '../../util/Api';
 export default class StudentFormDialog extends Component<Props> {
 	constructor(props) {
 		super(props);
-		console.log(this.props.isOpen);
 		this.state = {
-			open: this.props.isOpen,
-			firstName: '',
-			lastName: '',
-			status: 'กำลังศึกษา'
+			open: false,
+			isNewRecord: true
 		};
 	}
 
 	open = isOpen => {
+		this.setState({ open: isOpen });
+	};
+
+	setNewRecord = isNewRecord => {
+		this.setState({ isNewRecord: isNewRecord });
+	};
+
+	setStudent = student => {
 		this.setState({
-			open: isOpen,
-			firstName: '',
-			lastName: '',
-			status: 'กำลังศึกษา'
+			id: student.id || 0,
+			firstName: student.firstName,
+			lastName: student.lastName,
+			status: student.status
 		});
 	};
 
 	createStudent = async () => {
 		let resp = await Api.createStudents(this.state);
 		if (resp.success) {
-			this.setState({
-				open: false,
-				firstName: '',
-				lastName: '',
-				status: 'กำลังศึกษา'
-			});
+			this.props.onSaveStudent(resp.student);
+			this.setState({ open: false });
+		}
+	};
+
+	updateStudent = async () => {
+		let resp = await Api.updateStudents(this.state.id, this.state);
+		if (resp.success) {
+			this.props.onSaveStudent(resp.student);
+			this.setState({ open: false });
 		}
 	};
 
@@ -53,11 +62,13 @@ export default class StudentFormDialog extends Component<Props> {
 				open={this.state.open}
 				onClose={() => this.open(false)}
 				aria-labelledby='form-dialog-title'>
-				<DialogTitle id='form-dialog-title'>New student</DialogTitle>
+				<DialogTitle id='form-dialog-title'>
+					{this.state.isNewRecord ? 'New' : 'Edit'} Student
+				</DialogTitle>
 				<DialogContent>
 					<DialogContentText>
-						To create student to this website, please enter your frist name, last name and status
-						here. We will send updates occasionally.
+						To create or update student to this website, please enter your frist name, last name and
+						status here. We will send updates occasionally.
 					</DialogContentText>
 					<form noValidate autoComplete='off'>
 						<div className='row'>
@@ -115,7 +126,10 @@ export default class StudentFormDialog extends Component<Props> {
 					<Button variant='outlined' onClick={() => this.open(false)} color='secondary'>
 						Cancel
 					</Button>
-					<Button variant='outlined' onClick={() => this.createStudent()} color='primary'>
+					<Button
+						variant='outlined'
+						onClick={() => (this.state.isNewRecord ? this.createStudent() : this.updateStudent())}
+						color='primary'>
 						Save
 					</Button>
 				</DialogActions>

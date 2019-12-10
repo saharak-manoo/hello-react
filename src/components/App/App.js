@@ -7,6 +7,7 @@ import './style.css';
 import { SnackbarProvider } from 'notistack';
 import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import * as Api from '../../util/Api';
 
@@ -16,23 +17,48 @@ export default class App extends Component<Props> {
 		this.state = {
 			isLoading: true,
 			students: [],
-			isOpenFormDialog: false
+			student: {
+				id: 0,
+				firstName: '',
+				lastName: '',
+				status: 'กำลังศึกษา'
+			}
 		};
 	}
 
 	studentFormDialog = React.createRef();
+	studentMatTable = React.createRef();
 
 	componentWillMount = async () => {
 		let resp = await Api.getStudents();
 		if (resp.success) {
-			this.setState({ isLoading: false, students: resp.students });
+			this.studentMatTable.current.setStudents(resp.students.reverse());
+			this.setState({ isLoading: false });
 		}
 	};
 
-	openStudentFormDialog = () => {
-		if (this.studentFormDialog.current) {
-			this.studentFormDialog.current.open(true);
-			this.setState({ isOpenFormDialog: true });
+	reloadTable = async () => {
+		let resp = await Api.getStudents();
+		if (resp.success) {
+			this.studentMatTable.current.setStudents(resp.students.reverse());
+		}
+	};
+
+	createStudentFormDialog = () => {
+		let modal = this.studentFormDialog.current;
+		if (modal) {
+			modal.setNewRecord(true);
+			modal.setStudent(this.state.student);
+			modal.open(true);
+		}
+	};
+
+	editStudentFormDialog = async student => {
+		let modal = this.studentFormDialog.current;
+		if (modal) {
+			modal.setNewRecord(false);
+			modal.setStudent(student);
+			modal.open(true);
 		}
 	};
 
@@ -41,14 +67,18 @@ export default class App extends Component<Props> {
 			<SnackbarProvider maxSnack={5}>
 				<div className='App'>
 					<NavBar />
-					{this.state.isLoading ? null : <MatTable students={this.state.students} />}
+					<MatTable
+						ref={this.studentMatTable}
+						onEditStudentFormDialog={this.editStudentFormDialog}
+						onDeleteStudent={this.reloadTable}
+					/>
 					<div className='btn-bottom'>
-						<Fab color='primary' onClick={() => this.openStudentFormDialog()} aria-label='add'>
+						<Fab color='primary' onClick={() => this.createStudentFormDialog()} aria-label='add'>
 							<AddIcon />
 						</Fab>
 					</div>
 
-					<StudentFormDialog ref={this.studentFormDialog} isOpen={this.state.isOpenFormDialog} />
+					<StudentFormDialog ref={this.studentFormDialog} onSaveStudent={this.reloadTable} />
 				</div>
 			</SnackbarProvider>
 		);

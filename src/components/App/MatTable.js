@@ -14,13 +14,15 @@ export default class MatTable extends Component<Props> {
 	constructor(props) {
 		super(props);
 		this.state = {
-			rows: this.props.students,
+			rows: [],
 			rowsPerPage: 5,
 			page: 0
 		};
 	}
 
-	componentDidMount = async () => {};
+	setStudents = async students => {
+		this.setState({ rows: students });
+	};
 
 	handleChangePage = (event, newPage) => {
 		this.setState({ page: newPage });
@@ -28,6 +30,16 @@ export default class MatTable extends Component<Props> {
 
 	handleChangeRowsPerPage = event => {
 		this.setState({ rowsPerPage: parseInt(event.target.value, 10), page: 0 });
+	};
+
+	openEditer = s => {
+		let student = {
+			id: s.id,
+			firstName: s.first_name,
+			lastName: s.last_name,
+			status: s.status
+		};
+		this.props.onEditStudentFormDialog(student);
 	};
 
 	render() {
@@ -56,7 +68,7 @@ export default class MatTable extends Component<Props> {
 										.map(row => (
 											<TableRow key={row.first_name}>
 												<TableCell component='th' scope='row'>
-													{row.first_name}
+													<a onClick={() => this.openEditer(row)}>{row.first_name}</a>
 												</TableCell>
 												<TableCell align='right'>{row.last_name}</TableCell>
 												<TableCell align='right'>{row.status}</TableCell>

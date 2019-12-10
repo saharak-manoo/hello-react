@@ -51,6 +51,22 @@ app.post('/api/students', (req, res) => {
 	});
 });
 
+app.put('/api/students/:id', (req, res) => {
+	let student = req.body.student;
+	let query = {
+		text: `UPDATE students SET first_name = ($1), last_name = ($2), status = ($3), updated_at = ($4) WHERE id = (${req.params.id})`,
+		values: [student.firstName, student.lastName, student.status, new Date()]
+	};
+
+	client.query(query, (err, result) => {
+		if (err) {
+			res.status(400).send({ student: null, success: false, errors: err });
+		} else {
+			res.status(200).send({ students: result.rows[0], success: true, errors: null });
+		}
+	});
+});
+
 app.get('*', (req, res) => {
 	res.sendFile(path.resolve(__dirname, '..', 'build', 'index.html'));
 });
