@@ -32,7 +32,7 @@ export default class MatTable extends Component<Props> {
 	};
 
 	handleChangeRowsPerPage = event => {
-		this.setState({ rowsPerPage: parseInt(event.target.value, 10), page: 0 });
+		this.setState({ rowsPerPage: event.target.value, page: 0 });
 	};
 
 	openEditer = s => {
@@ -77,7 +77,7 @@ export default class MatTable extends Component<Props> {
 											(this.state.page + 1) * this.state.rowsPerPage
 										)
 										.map(row => (
-											<TableRow key={row.first_name}>
+											<TableRow>
 												<TableCell component='th' scope='row'>
 													<a className='link-to' onClick={() => this.openEditer(row)}>
 														{row.first_name}
