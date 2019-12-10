@@ -14,16 +14,13 @@ export default class MatTable extends Component<Props> {
 	constructor(props) {
 		super(props);
 		this.state = {
-			rows: [],
+			rows: this.props.students,
 			rowsPerPage: 5,
 			page: 0
 		};
 	}
 
-	componentDidMount = async () => {
-		let resp = await Api.getStudents();
-		this.setState({ rows: resp });
-	};
+	componentDidMount = async () => {};
 
 	handleChangePage = (event, newPage) => {
 		this.setState({ page: newPage });
