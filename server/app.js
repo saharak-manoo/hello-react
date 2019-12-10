@@ -1,6 +1,8 @@
 const express = require('express');
 const path = require('path');
 const { Client } = require('pg');
+const bodyParser = require('body-parser');
+
 const connectionString = 'postgres://saharak:@localhost:5432/ruby_on_rails_dev';
 
 const client = new Client({
@@ -14,12 +16,68 @@ const app = express();
 // Server static assets
 app.use(express.static(path.resolve(__dirname, '..', 'build')));
 
-app.get('/api/students', (req, res, done) => {
+app.use(bodyParser.json()); // to support JSON-encoded bodies
+app.use(
+	bodyParser.urlencoded({
+		// to support URL-encoded bodies
+		extended: true
+	})
+);
+
+app.get('/api/students', (req, res) => {
 	client.query('SELECT * FROM students', function(err, result) {
 		if (err) {
-			res.status(400).send(err);
+			res.status(400).send({ students: [], success: false, errors: err });
+		} else {
+			res.status(200).send({ students: result.rows, success: true, errors: null });
 		}
-		res.status(200).send(result.rows);
+	});
+});
+
+app.post('/api/students', (req, res) => {
+	let student = req.body.student;
+	let query = {
+		text:
+			'INSERT INTO students (first_name, last_name, status, created_at, updated_at, class_level_id, credits_earned, total_vacation)  VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+		values: [student.firstName, student.lastName, student.status, new Date(), new Date(), 1, 10, 10]
+	};
+
+	client.query(query, (err, result) => {
+		if (err) {
+			res.status(400).send({ student: null, success: false, errors: err });
+		} else {
+			res.status(200).send({ students: result.rows[0], success: true, errors: null });
+		}
+	});
+});
+
+app.put('/api/students/:id', (req, res) => {
+	let student = req.body.student;
+	let query = {
+		text: `UPDATE students SET first_name = ($1), last_name = ($2), status = ($3), updated_at = ($4) WHERE id = (${req.params.id})`,
+		values: [student.firstName, student.lastName, student.status, new Date()]
+	};
+
+	client.query(query, (err, result) => {
+		if (err) {
+			res.status(400).send({ student: null, success: false, errors: err });
+		} else {
+			res.status(200).send({ students: result.rows[0], success: true, errors: null });
+		}
+	});
+});
+
+app.delete('/api/students/:id', (req, res) => {
+	let query = {
+		text: `DELETE FROM students WHERE id = (${req.params.id})`
+	};
+
+	client.query(query, (err, result) => {
+		if (err) {
+			res.status(400).send({ student: null, success: false, errors: err });
+		} else {
+			res.status(200).send({ students: result.rows[0], success: true, errors: null });
+		}
 	});
 });
 
